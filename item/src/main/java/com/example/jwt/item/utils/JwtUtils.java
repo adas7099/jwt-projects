@@ -3,15 +3,19 @@ package com.example.jwt.item.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class JwtUtils {
-    private final String SECRET="878hjgyt5t76bjhbytr56yijbvct656";
+    private final String SECRET="878hjgyt5t76bjhbytr56y768786798908098676ijbvct656";
     public String generateToken(UserDetails userDetails){
         List<String> roles= userDetails.getAuthorities()
                 .stream().map(a->a.getAuthority())
@@ -19,41 +23,44 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .claim("roles",roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(
+                .issuedAt(new Date())
+                .expiration(new Date(
                         System.currentTimeMillis()+5*60*1000
                 ))
-                .signWith(SignatureAlgorithm.HS256,SECRET)
+                .signWith(getKey())
                 .compact();
     }
     public String extractUserName(String token){
         return Jwts.parser()
-                .setSigningKey(SECRET)
+                .verifyWith(getKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
 
     }
     public List<String> extractRoles(String token){
         Claims claims=Jwts.parser()
-                .setSigningKey(SECRET)
+                .verifyWith(getKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
         return claims.get("roles",List.class);
     }
     public boolean isValidToken(String token ,UserDetails userDetails){
         return extractUserName(token).equalsIgnoreCase(userDetails.getUsername())
-                &&!isTokenExpired(token);
+                && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
-        Date expiDate=Jwts.parser().setSigningKey(SECRET)
+        Date expiDate=Jwts.parser().verifyWith(getKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getExpiration();
-        expiDate.before(new Date());
+        return expiDate.before(new Date());
+    }
+    private SecretKey getKey(){
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 }

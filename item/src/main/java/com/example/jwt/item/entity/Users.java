@@ -1,9 +1,6 @@
 package com.example.jwt.item.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,12 +15,13 @@ import java.util.List;
 public class Users implements UserDetails {
     @Id
     @Column(name="uid")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer uid;
 
     @Column(name = "userName")
     private String userName;
 
-    @Column(name = "password")
+    @Column(name = "password",length = 68)
     private String password;
 
     @Column(name = "role")
@@ -45,6 +43,34 @@ public class Users implements UserDetails {
     @Override
     public String getUsername() {
         return this.userName;
+    }
+
+    public void setPassword(String password){
+        this.password=password;
+    }
+
+    public Integer getUid() {
+        return uid;
+    }
+
+    public void setUid(Integer uid) {
+        this.uid = uid;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     @Override

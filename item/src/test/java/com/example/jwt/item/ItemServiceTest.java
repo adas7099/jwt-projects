@@ -9,7 +9,7 @@ import com.example.jwt.item.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.autoconfigure.AutoConfigureMockMvc;
 
 import java.util.*;
 @SpringBootTest   // Boots up the full Spring context
@@ -50,7 +50,7 @@ public class ItemServiceTest {
     @Test
     void testGetItemById() {
         Item item = new Item("Laptop", "Gaming", 1200.0, 2);
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(itemRepository.findById(1)).thenReturn(Optional.of(item));
 
         Item result = itemService.getItemById(1L);
 
@@ -59,10 +59,10 @@ public class ItemServiceTest {
 
     @Test
     void testDeleteItem() {
-        doNothing().when(itemRepository).deleteById(1L);
+        doNothing().when(itemRepository).deleteById(1);
 
         itemService.deleteItem(1L);
 
-        verify(itemRepository, times(1)).deleteById(1L);
+        verify(itemRepository, times(1)).deleteById(1);
     }
 }
